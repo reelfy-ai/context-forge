@@ -1,0 +1,76 @@
+# Example Task: Refund Request Handling
+#
+# This task evaluates how well an agent handles customer refund requests.
+# Use this as a template for your own tasks.
+
+id: refund_request
+name: "Refund Request Handling"
+description: |
+  Agent should process customer refund requests by:
+  1. Looking up the order
+  2. Checking eligibility
+  3. Processing refund if eligible
+  4. Communicating the result
+version: "1.0.0"
+
+tags:
+  - customer-service
+  - refunds
+  - example
+
+# What the agent should accomplish
+goal: |
+  Handle the customer's refund request professionally and accurately.
+  The agent should verify the order exists, check if it's eligible for
+  a refund (within 30 days, delivered status), and process the refund
+  if all conditions are met.
+
+# Input schema - what the agent receives
+inputs:
+  - name: user_message
+    type: string
+    required: true
+    description: "The customer's message requesting a refund"
+
+  - name: customer_id
+    type: string
+    required: false
+    description: "Optional customer identifier for lookup"
+
+# Quick test input
+sample_input:
+  user_message: "I want a refund for order #12345"
+  customer_id: "cust_abc123"
+
+# Execution constraints
+constraints:
+  timeout_seconds: 30
+
+  # Only these tools are allowed
+  allowed_tools:
+    - order_lookup
+    - refund_eligibility
+    - process_refund
+    - send_notification
+
+  # Resource limits
+  max_tool_calls: 10
+  max_tokens: 3000
+  max_llm_calls: 5
+
+# How to determine success
+success_criteria:
+  type: grader_pass
+  required_graders:
+    - budget
+    - schema
+    - loops
+
+# Path to rubric for LLM judge evaluation
+rubric: rubrics/refund_quality.md
+
+# Additional metadata
+metadata:
+  author: "ContextForge Examples"
+  difficulty: "beginner"
+  estimated_time_seconds: 15

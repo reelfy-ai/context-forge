@@ -1,0 +1,103 @@
+# Example Scenario: Eligible Refund (Happy Path)
+#
+# This scenario provides deterministic fixtures for testing
+# the refund_request task with an eligible order.
+
+id: refund_eligible_happy_path
+name: "Eligible Refund - Happy Path"
+description: |
+  Customer requests a refund for an order that is:
+  - Delivered status
+  - Within 30-day return window
+  - Valid customer ID
+  Expected outcome: Refund processed successfully
+
+task_id: refund_request
+
+# Specific input for this scenario
+input:
+  user_message: "Hi, I'd like to get a refund for my recent order #12345. The product didn't meet my expectations."
+  customer_id: "cust_abc123"
+
+# Expected characteristics of the output
+expected_output:
+  # Output should contain these phrases
+  contains:
+    - "refund"
+    - "processed"
+  # Output should NOT contain these
+  excludes:
+    - "unable"
+    - "sorry"
+    - "cannot"
+
+# Determinism settings
+seed: 42
+frozen_time: "2025-01-14T10:00:00Z"
+
+# Tool call fixtures - these responses will be used during replay
+tool_fixtures:
+  # Order lookup returns a valid, delivered order
+  - tool: order_lookup
+    args:
+      order_id: "12345"
+    result:
+      order_id: "12345"
+      customer_id: "cust_abc123"
+      items:
+        - name: "Widget Pro"
+          quantity: 1
+          price: 99.99
+      total_amount: 99.99
+      status: "delivered"
+      delivery_date: "2025-01-10"
+      order_date: "2025-01-05"
+    latency_ms: 45
+    match_mode: exact
+
+  # Eligibility check returns positive
+  - tool: refund_eligibility
+    args:
+      order_id: "12345"
+    result:
+      eligible: true
+      reason: "Order is within 30-day return window"
+      days_since_delivery: 4
+      refund_amount: 99.99
+    latency_ms: 30
+    match_mode: exact
+
+  # Refund processing succeeds
+  - tool: process_refund
+    args:
+      order_id: "12345"
+      amount: 99.99
+      reason: "customer_request"
+    result:
+      success: true
+      refund_id: "ref_xyz789"
+      amount_refunded: 99.99
+      estimated_days: 3
+    latency_ms: 120
+    match_mode: fuzzy  # Allow minor arg variations
+    fuzzy_threshold: 0.9
+
+  # Notification sent
+  - tool: send_notification
+    args:
+      customer_id: "cust_abc123"
+      type: "refund_confirmation"
+    result:
+      sent: true
+      channel: "email"
+    latency_ms: 50
+    match_mode: fuzzy
+    fuzzy_threshold: 0.8
+
+# Optional metadata
+metadata:
+  test_type: "happy_path"
+  priority: "high"
+  tags:
+    - "smoke_test"
+    - "ci"
