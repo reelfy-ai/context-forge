@@ -211,3 +211,6 @@ __marimo__/
 
 # Spec-Kit working directory
 .specify/
+
+# Internal drafts and references (not for public repo)
+docs/internal/

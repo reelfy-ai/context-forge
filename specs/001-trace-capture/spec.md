@@ -5,6 +5,20 @@
 **Status**: Draft
 **Priority**: P1 (Must Have for MVP)
 
+## Clarifications
+
+### Session 2026-01-21
+
+- Q: How should TDD be enforced in the development process? → A: Tests must exist and fail before any implementation code
+- Q: What test framework should be used for TDD? → A: pytest with pytest-asyncio for async tests
+- Q: How are nested/recursive agent calls represented in the trace? → A: Flat list with parent_step_id reference (like OTel spans)
+- Q: What happens when OTel spans are missing required attributes? → A: Best-effort conversion with warnings, use null/defaults for missing fields
+- Q: What happens when multiple instrumentors are active simultaneously? → A: Independent traces per instrumentor, correlatable via shared context
+- Q: How should human-in-the-loop pauses (e.g., LangGraph interrupt) be captured? → A: Add `interrupt` step type for human-in-the-loop pauses (captures request + response)
+- Q: What fields should memory_read/memory_write steps capture? → A: Rich schema with query, results, match_count, and optional relevance_scores
+- Q: Should WebSocket/streaming broadcast events be captured in traces? → A: Out of scope; streaming is transport-layer, not agent behavior
+- Q: Should tool calls capture resource/cost impact metadata? → A: Optional `resource_impact` field on tool_call schema
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Auto-Instrument Framework Agent (Priority: P1)
@@ -73,11 +87,11 @@ As a **custom agent developer**, I want full control over what gets traced, so t
 
 ### Edge Cases
 
-- What happens when instrumentation is added after agent initialization?
-- How are nested/recursive agent calls represented in the trace?
-- What happens when OTel spans are missing required attributes?
-- How are very large traces (>10k steps) handled without memory issues?
-- What happens when multiple instrumentors are active simultaneously?
+- What happens when instrumentation is added after agent initialization? → Partial trace captured from point of instrumentation; warning logged; no retroactive capture
+- Nested/recursive agent calls: Represented as flat list with parent_step_id references (OTel-style)
+- OTel spans missing attributes: Best-effort conversion with warnings, use null/defaults for missing fields
+- How are very large traces (>10k steps) handled without memory issues? → Streaming JSON serialization; chunked writes for file output; lazy loading for reads (per SC-004)
+- Multiple instrumentors active: Each produces independent trace, correlatable via shared run context
 
 ## Requirements *(mandatory)*
 
@@ -86,8 +100,9 @@ As a **custom agent developer**, I want full control over what gets traced, so t
 **Trace Format**
 - **FR-001**: System MUST produce traces in a documented, stable JSON format (TraceRun schema)
 - **FR-002**: Each trace MUST include run metadata: run_id, started_at, ended_at, agent info, task info
-- **FR-003**: Each step MUST include: step_id, step_type, timestamp, inputs, outputs
-- **FR-004**: System MUST support step types: user_input, llm_call, tool_call, retrieval, memory_read, memory_write, state_change, final_output
+- **FR-003**: Each step MUST include: step_id, step_type, timestamp, inputs, outputs, and optional parent_step_id for nested calls
+- **FR-004**: System MUST support step types: user_input, llm_call, tool_call, retrieval, memory_read, memory_write, state_change, interrupt, final_output
+- **FR-004a**: The `interrupt` step type MUST capture: prompt shown to user, user's response, and wait duration
 
 **LLM Call Capture**
 - **FR-005**: LLM calls MUST capture: model identifier, input/prompt, output/response
@@ -96,16 +111,29 @@ As a **custom agent developer**, I want full control over what gets traced, so t
 **Tool Call Capture**
 - **FR-007**: Tool calls MUST capture: tool name, arguments, result
 - **FR-008**: Tool calls SHOULD capture: latency, success/failure status
+- **FR-008d**: Tool calls MAY include optional `resource_impact` field for cost/credit calculations (amount, unit, breakdown)
+
+**Memory Operations Capture**
+- **FR-008a**: `memory_read` steps MUST capture: query, results, match_count
+- **FR-008b**: `memory_read` steps SHOULD capture: relevance_scores, total_available
+- **FR-008c**: `memory_write` steps MUST capture: entity_type, operation (add/update/delete), data written
 
 **Integration Methods**
 - **FR-009**: System MUST support auto-instrumentation via `Instrumentor().instrument()` pattern
+- **FR-009a**: Multiple active instrumentors MUST produce independent traces, correlatable via shared run context (not merged)
 - **FR-010**: System MUST support OTel/OpenInference span ingestion via OTLP
+- **FR-010a**: OTel ingestion MUST use best-effort conversion: spans with missing attributes are converted with warnings and null/default values (not rejected)
 - **FR-011**: System MUST support explicit tracing via Tracer context manager API
 - **FR-012**: System MUST support framework callback handlers
 
 **Concurrency & Async**
 - **FR-013**: System MUST handle async agent operations correctly
 - **FR-014**: System MUST handle concurrent step emission without data corruption
+
+**Development Process**
+- **FR-015**: All features MUST follow TDD: tests must exist and fail before implementation code is written
+- **FR-016**: Each acceptance scenario MUST have a corresponding executable test
+- **FR-017**: Tests MUST use pytest with pytest-asyncio for async test support
 
 ### Key Entities
 
