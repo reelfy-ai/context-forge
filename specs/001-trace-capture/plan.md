@@ -1,140 +1,104 @@
-# Implementation Plan: Trace Capture
+# Implementation Plan: [FEATURE]
 
-**Branch**: `001-trace-capture` | **Date**: 2026-01-21 | **Spec**: [spec.md](./spec.md)
-**Input**: Feature specification from `/specs/001-trace-capture/spec.md`
+**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+
+**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-ContextForge Trace Capture provides a multi-level integration system for capturing agent behavior as structured traces. The system supports 4 integration levels: OTel/OpenInference ingestion (Level 1), auto-instrumentation (Level 2), callback handlers (Level 3), and explicit Tracer API (Level 4). All traces conform to a stable TraceRun/TraceStep schema that graders can evaluate without framework-specific dependencies.
+[Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+ (per constitution)
-**Primary Dependencies**:
-- Pydantic (data models, per constitution)
-- opentelemetry-api, opentelemetry-sdk (OTel ingestion)
-- opentelemetry-semantic-conventions-ai (OpenInference support)
-- langchain-core (for LangChain instrumentor callbacks)
+<!--
+  ACTION REQUIRED: Replace the content in this section with the technical details
+  for the project. The structure here is presented in advisory capacity to guide
+  the iteration process.
+-->
 
-**Storage**: JSON files (trace output), no persistent storage required for core
-**Testing**: pytest with pytest-asyncio (per spec FR-017, TDD required per FR-015)
-**Target Platform**: Linux/macOS/Windows (Python library)
-**Project Type**: Single Python package
-**Performance Goals**:
-- SC-003: Traces serialized to JSON in under 100ms for <1000 steps
-- SC-004: Handle 10,000+ steps without memory errors
-- SC-005: Millisecond timestamp precision
-
-**Constraints**:
-- No heavy runtime dependencies in core (per constitution)
-- Framework integrations as optional extras
-- Local-first, Ollama-first (no mandatory cloud dependencies)
-
-**Scale/Scope**:
-- Support traces up to 10,000+ steps
-- Multiple concurrent instrumentors producing independent traces
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
+**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+**Project Type**: [single/web/mobile - determines source structure]  
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
+**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Evidence |
-|-----------|--------|----------|
-| I. Framework Agnosticism | PASS | Instrumentors produce traces; graders never see framework objects |
-| II. Traces as First-Class | PASS | TraceRun/TraceStep are core entities; schema stability required (FR-001) |
-| III. Multi-Level Integration | PASS | All 4 levels implemented (FR-009 to FR-012) |
-| IV. Spec-Driven Development | PASS | Spec complete with clarifications before planning |
-| V. CI-Safe by Design | PASS | Tool record/replay supported via deterministic trace format |
-| VI. Grader Quality Standards | N/A | This feature is trace capture, not graders |
-| VII. Local-First | PASS | No cloud dependencies; OTel is transport layer |
-
-**Technical Constraints Check**:
-| Constraint | Status | Evidence |
-|------------|--------|----------|
-| Python 3.10+ | PASS | Target version |
-| Type hints for public APIs | PASS | Required in implementation |
-| Pydantic for data models | PASS | TraceRun, TraceStep will use Pydantic |
-| Black/Ruff formatting | PASS | Applied during implementation |
-| No heavy runtime dependencies | PASS | Core has minimal deps; frameworks are extras |
-| pytest for tests | PASS | FR-017 specifies pytest |
-
-**Pre-Implementation Gates**:
-- [x] Spec exists and is approved
-- [x] Constitution principles not violated
-- [x] Required capabilities declared
+[Gates determined based on constitution file]
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-trace-capture/
-├── spec.md              # Feature specification (complete)
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── tracer-api.md
-│   ├── instrumentor-api.md
-│   └── span-converter-api.md
-└── tasks.md             # Phase 2 output (via /speckit.tasks)
+specs/[###-feature]/
+├── plan.md              # This file (/speckit.plan command output)
+├── research.md          # Phase 0 output (/speckit.plan command)
+├── data-model.md        # Phase 1 output (/speckit.plan command)
+├── quickstart.md        # Phase 1 output (/speckit.plan command)
+├── contracts/           # Phase 1 output (/speckit.plan command)
+└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
 ```
 
 ### Source Code (repository root)
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
 ```text
-context_forge/
-├── core/                    # Stable contracts (trace spec, types, registry)
-│   ├── __init__.py
-│   ├── types.py             # StepType enum, base types
-│   ├── trace.py             # TraceRun, TraceStep Pydantic models
-│   └── registry.py          # Instrumentor registry
-│
-├── instrumentation/
-│   ├── __init__.py
-│   ├── base.py              # Instrumentor base class
-│   ├── tracer.py            # Explicit Tracer API (Level 4)
-│   │
-│   ├── otel/                # OTel/OpenInference ingestion (Level 1)
-│   │   ├── __init__.py
-│   │   ├── collector.py     # OTLP receiver
-│   │   └── converter.py     # SpanConverter: OTel spans → TraceSteps
-│   │
-│   ├── instrumentors/       # Framework auto-instrumentation (Level 2)
-│   │   ├── __init__.py
-│   │   ├── langchain.py     # LangChainInstrumentor
-│   │   └── crewai.py        # CrewAIInstrumentor
-│   │
-│   └── callbacks/           # Framework callback handlers (Level 3)
-│       ├── __init__.py
-│       └── langchain.py     # ContextForgeHandler for LangChain
-│
-└── cli/                     # CLI (future)
-    └── __init__.py
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+src/
+├── models/
+├── services/
+├── cli/
+└── lib/
 
 tests/
-├── conftest.py              # Shared fixtures (sample traces, mock agents)
-├── unit/
-│   ├── test_trace_schema.py      # TraceRun, TraceStep validation
-│   ├── test_step_types.py        # All step types serialize correctly
-│   └── test_tracer_api.py        # Explicit tracer API
-│
+├── contract/
 ├── integration/
-│   ├── test_langchain_instrumentor.py
-│   ├── test_otel_ingestion.py
-│   └── test_callback_handler.py
-│
-└── contract/
-    └── test_trace_stability.py   # Schema backward compatibility
+└── unit/
+
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+backend/
+├── src/
+│   ├── models/
+│   ├── services/
+│   └── api/
+└── tests/
+
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   └── services/
+└── tests/
+
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+api/
+└── [same as backend above]
+
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Structure Decision**: Single Python package following the layout specified in CLAUDE.md. The `core/` module contains stable contracts; `instrumentation/` contains all 4 integration levels organized by method.
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
 ## Complexity Tracking
 
-> No constitution violations requiring justification.
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| None | - | - |
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

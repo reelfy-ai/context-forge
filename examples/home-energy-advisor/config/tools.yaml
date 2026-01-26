@@ -1,0 +1,16 @@
+mode: mock  # "mock" for testing/CI, "live" for real API calls
+
+weather:
+  provider: openweathermap
+  endpoint: https://api.openweathermap.org/data/2.5
+  api_key_env: OPENWEATHER_API_KEY
+
+rates:
+  provider: nrel
+  endpoint: https://developer.nrel.gov/api/utility_rates/v3
+  api_key_env: NREL_API_KEY
+
+solar:
+  provider: nrel_pvwatts
+  endpoint: https://developer.nrel.gov/api/pvwatts/v8
+  api_key_env: NREL_API_KEY
