@@ -142,13 +142,12 @@ BudgetGrader: PASS
 LoopGrader: PASS
   no repeated steps detected
 
-MemoryHygieneGrader: FAIL
+HybridMemoryHygieneGrader: FAIL
   Evidence:
-    - step_id: step-2 (memory_read)
-    - field: household.work_schedule
-    - last_updated: 2025-06-15 (220 days ago)
-    - threshold: 90 days
-    - recommendation: Memory refresh required
+    - check_name: missed_fact
+    - severity: error
+    - description: User stated "I work from home now" but memorizer didn't save this fact
+    - step_id: step-2 (memory_read shows outdated work_schedule)
 
 RetrievalRelevanceGrader: WARN
   Evidence:
@@ -165,7 +164,7 @@ Pre-recorded traces demonstrating different scenarios:
 # Good trajectory (all graders pass)
 python evaluate.py traces/ev-charging-good.json
 
-# Stale memory (MemoryHygieneGrader fails)
+# Missed fact (HybridMemoryHygieneGrader fails - LLM judge detects user info not saved)
 python evaluate.py traces/ev-charging-stale-memory.json
 
 # Tool loop (LoopGrader fails)

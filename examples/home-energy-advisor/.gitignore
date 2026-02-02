@@ -29,3 +29,6 @@ Thumbs.db
 .pytest_cache/
 htmlcov/
 .coverage
+
+# ContextForge traces
+traces/

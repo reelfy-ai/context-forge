@@ -240,13 +240,13 @@
 
 **Goal**: Pre-recorded traces demonstrate evaluation scenarios; evaluate.py produces expected results
 
-**Independent Test**: Run `python evaluate.py traces/ev-charging-stale-memory.json`, verify MemoryHygieneGrader FAIL
+**Independent Test**: Run `python evaluate.py traces/ev-charging-stale-memory.json`, verify HybridMemoryHygieneGrader FAIL (LLM judge detects missed fact)
 
 ### Implementation for Sample Traces
 
 - [ ] T085 Create traces/ directory structure
 - [ ] T086 [P] Create traces/ev-charging-good.json (all graders pass — Memorizer extracts facts, timestamps fresh, Analyzer exits cleanly)
-- [ ] T087 [P] Create traces/ev-charging-stale-memory.json (MemoryHygieneGrader FAIL: Memorizer didn't run, 220-day-old work_schedule)
+- [ ] T087 [P] Create traces/ev-charging-stale-memory.json (HybridMemoryHygieneGrader FAIL: Memorizer didn't run, user fact not saved)
 - [ ] T088 [P] Create traces/ev-charging-loop.json (LoopGrader FAIL: Analyzer calls weather API 4x with same args)
 - [ ] T089 [P] Create traces/ev-charging-retrieval-waste.json (RetrievalRelevanceGrader WARN: 5 retrieved, 1 used)
 - [ ] T090 Create scripts/generate_sample_traces.py (optional: generate traces programmatically)
@@ -399,7 +399,7 @@ The project implements 3 agents as LangGraph subgraphs:
 
 | Failure | Grader | Agent Involved | How It's Triggered |
 |---------|--------|----------------|-------------------|
-| Stale memory | MemoryHygieneGrader | Memorizer | Memorizer doesn't run → timestamps stay old |
+| Missed fact | HybridMemoryHygieneGrader | Memorizer | Memorizer doesn't run → user-stated facts not saved |
 | Tool loop | LoopGrader | Analyzer | Analyzer calls same tool+args > 3 times |
 | Retrieval waste | RetrievalRelevanceGrader | Recall (Advisor) | Retrieved docs not cited by Recommend |
 | Budget overrun | BudgetGrader | Analyzer | Too many tool round-trips → tokens exceed budget |

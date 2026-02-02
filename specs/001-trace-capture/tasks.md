@@ -26,12 +26,12 @@
 
 **Purpose**: Project initialization and Python package structure
 
-- [ ] T001 Create project structure: `context_forge/`, `tests/`, `pyproject.toml`
-- [ ] T002 Initialize Python 3.10+ project with Pydantic dependency in `pyproject.toml`
-- [ ] T003 [P] Configure pytest and pytest-asyncio in `pyproject.toml`
-- [ ] T004 [P] Configure Black and Ruff formatting in `pyproject.toml`
-- [ ] T005 [P] Create `context_forge/__init__.py` with package exports
-- [ ] T006 [P] Create `tests/conftest.py` with shared fixtures (sample traces, mock data)
+- [x] T001 Create project structure: `context_forge/`, `tests/`, `pyproject.toml`
+- [x] T002 Initialize Python 3.10+ project with Pydantic dependency in `pyproject.toml`
+- [x] T003 [P] Configure pytest and pytest-asyncio in `pyproject.toml`
+- [x] T004 [P] Configure Black and Ruff formatting in `pyproject.toml`
+- [x] T005 [P] Create `context_forge/__init__.py` with package exports
+- [x] T006 [P] Create `tests/conftest.py` with shared fixtures (sample traces, mock data)
 
 ---
 
@@ -43,30 +43,30 @@
 
 ### Tests for Foundational (TDD - must fail first)
 
-- [ ] T007 [P] Write failing test for StepType enum in `tests/unit/test_types.py`
-- [ ] T008 [P] Write failing test for BaseStep model in `tests/unit/test_trace_schema.py`
-- [ ] T009 [P] Write failing test for all step type models (LLMCallStep, ToolCallStep, etc.) in `tests/unit/test_step_types.py`
-- [ ] T010 [P] Write failing test for TraceRun model in `tests/unit/test_trace_schema.py`
-- [ ] T011 [P] Write failing test for discriminated union validation in `tests/unit/test_trace_schema.py`
-- [ ] T012 [P] Write failing test for JSON serialization (<100ms for 1000 steps) in `tests/unit/test_trace_schema.py`
+- [x] T007 [P] Write failing test for StepType enum in `tests/unit/test_types.py`
+- [x] T008 [P] Write failing test for BaseStep model in `tests/unit/test_trace_schema.py`
+- [x] T009 [P] Write failing test for all step type models (LLMCallStep, ToolCallStep, etc.) in `tests/unit/test_step_types.py`
+- [x] T010 [P] Write failing test for TraceRun model in `tests/unit/test_trace_schema.py`
+- [x] T011 [P] Write failing test for discriminated union validation in `tests/unit/test_trace_schema.py`
+- [x] T012 [P] Write failing test for JSON serialization (<100ms for 1000 steps) in `tests/unit/test_trace_schema.py`
 
 ### Implementation for Foundational
 
-- [ ] T013 [P] Implement StepType enum in `context_forge/core/types.py`
-- [ ] T014 [P] Implement AgentInfo and TaskInfo models in `context_forge/core/types.py`
-- [ ] T015 [P] Implement ResourceImpact and RetrievalResult models in `context_forge/core/types.py`
-- [ ] T016 Implement BaseStep model in `context_forge/core/trace.py` (depends on T013)
-- [ ] T017 Implement LLMCallStep model in `context_forge/core/trace.py` (depends on T016)
-- [ ] T018 [P] Implement ToolCallStep model in `context_forge/core/trace.py`
-- [ ] T019 [P] Implement RetrievalStep model in `context_forge/core/trace.py`
-- [ ] T020 [P] Implement MemoryReadStep and MemoryWriteStep models in `context_forge/core/trace.py`
-- [ ] T021 [P] Implement InterruptStep model in `context_forge/core/trace.py`
-- [ ] T022 [P] Implement StateChangeStep, UserInputStep, FinalOutputStep models in `context_forge/core/trace.py`
-- [ ] T023 Implement TraceStep discriminated union in `context_forge/core/trace.py` (depends on T017-T022)
-- [ ] T024 Implement TraceRun model in `context_forge/core/trace.py` (depends on T023)
-- [ ] T025 [P] Implement custom exceptions in `context_forge/exceptions.py`
-- [ ] T026 Create `context_forge/core/__init__.py` with public exports
-- [ ] T027 Verify all foundational tests pass
+- [x] T013 [P] Implement StepType enum in `context_forge/core/types.py`
+- [x] T014 [P] Implement AgentInfo and TaskInfo models in `context_forge/core/types.py`
+- [x] T015 [P] Implement ResourceImpact and RetrievalResult models in `context_forge/core/types.py`
+- [x] T016 Implement BaseStep model in `context_forge/core/trace.py` (depends on T013)
+- [x] T017 Implement LLMCallStep model in `context_forge/core/trace.py` (depends on T016)
+- [x] T018 [P] Implement ToolCallStep model in `context_forge/core/trace.py`
+- [x] T019 [P] Implement RetrievalStep model in `context_forge/core/trace.py`
+- [x] T020 [P] Implement MemoryReadStep and MemoryWriteStep models in `context_forge/core/trace.py`
+- [x] T021 [P] Implement InterruptStep model in `context_forge/core/trace.py`
+- [x] T022 [P] Implement StateChangeStep, UserInputStep, FinalOutputStep models in `context_forge/core/trace.py`
+- [x] T023 Implement TraceStep discriminated union in `context_forge/core/trace.py` (depends on T017-T022)
+- [x] T024 Implement TraceRun model in `context_forge/core/trace.py` (depends on T023)
+- [x] T025 [P] Implement custom exceptions in `context_forge/exceptions.py`
+- [x] T026 Create `context_forge/core/__init__.py` with public exports
+- [x] T027 Verify all foundational tests pass
 
 **Checkpoint**: Foundation ready - all core models tested and working. User story implementation can now begin.
 
@@ -80,27 +80,27 @@
 
 ### Tests for User Story 1 (TDD - must fail first)
 
-- [ ] T028 [P] [US1] Write failing test for BaseInstrumentor interface in `tests/unit/test_instrumentor_base.py`
-- [ ] T029 [P] [US1] Write failing test for RedactionConfig in `tests/unit/test_instrumentor_base.py`
-- [ ] T030 [P] [US1] Write failing test for LangChainInstrumentor in `tests/integration/test_langchain_instrumentor.py`
+- [x] T028 [P] [US1] Write failing test for BaseInstrumentor interface in `tests/unit/test_instrumentor_base.py`
+- [x] T029 [P] [US1] Write failing test for RedactionConfig in `tests/unit/test_instrumentor_base.py`
+- [x] T030 [P] [US1] Write failing test for LangChainInstrumentor in `tests/integration/test_langchain_instrumentor.py`
 - [ ] T031 [P] [US1] Write failing test for CrewAIInstrumentor in `tests/integration/test_crewai_instrumentor.py`
-- [ ] T032 [P] [US1] Write failing test for multiple instrumentors (FR-009a) in `tests/integration/test_langchain_instrumentor.py`
-- [ ] T032a [P] [US1] Write failing test for context manager auto-uninstrument pattern in `tests/integration/test_langchain_instrumentor.py`
+- [x] T032 [P] [US1] Write failing test for multiple instrumentors (FR-009a) in `tests/integration/test_langchain_instrumentor.py`
+- [x] T032a [P] [US1] Write failing test for context manager auto-uninstrument pattern in `tests/integration/test_langchain_instrumentor.py`
 
 ### Implementation for User Story 1
 
-- [ ] T033 [US1] Implement RedactionConfig model in `context_forge/instrumentation/base.py`
-- [ ] T034 [US1] Implement BaseInstrumentor abstract class in `context_forge/instrumentation/base.py` (depends on T033)
-- [ ] T035 [US1] Implement instrument() and uninstrument() methods in `context_forge/instrumentation/base.py`
-- [ ] T036 [US1] Implement get_traces() method in `context_forge/instrumentation/base.py`
-- [ ] T037 [US1] Implement context manager protocol in BaseInstrumentor
-- [ ] T038 [US1] Create `context_forge/instrumentation/instrumentors/__init__.py`
-- [ ] T039 [US1] Implement LangChainInstrumentor in `context_forge/instrumentation/instrumentors/langchain.py` (depends on T034)
-- [ ] T040 [US1] Implement LangChain callback hooks for LLM, Tool, Retriever in `context_forge/instrumentation/instrumentors/langchain.py`
-- [ ] T041 [US1] Implement token usage capture from LangChain callbacks in `context_forge/instrumentation/instrumentors/langchain.py`
+- [x] T033 [US1] Implement RedactionConfig model in `context_forge/instrumentation/base.py`
+- [x] T034 [US1] Implement BaseInstrumentor abstract class in `context_forge/instrumentation/base.py` (depends on T033)
+- [x] T035 [US1] Implement instrument() and uninstrument() methods in `context_forge/instrumentation/base.py`
+- [x] T036 [US1] Implement get_traces() method in `context_forge/instrumentation/base.py`
+- [x] T037 [US1] Implement context manager protocol in BaseInstrumentor
+- [x] T038 [US1] Create `context_forge/instrumentation/instrumentors/__init__.py`
+- [x] T039 [US1] Implement LangChainInstrumentor in `context_forge/instrumentation/instrumentors/langchain.py` (depends on T034)
+- [x] T040 [US1] Implement LangChain callback hooks for LLM, Tool, Retriever in `context_forge/instrumentation/instrumentors/langchain.py`
+- [x] T041 [US1] Implement token usage capture from LangChain callbacks in `context_forge/instrumentation/instrumentors/langchain.py`
 - [ ] T042 [US1] Implement CrewAIInstrumentor in `context_forge/instrumentation/instrumentors/crewai.py` (depends on T034)
-- [ ] T043 [US1] Create `context_forge/instrumentation/__init__.py` with LangChainInstrumentor, CrewAIInstrumentor exports
-- [ ] T044 [US1] Verify all User Story 1 tests pass
+- [x] T043 [US1] Create `context_forge/instrumentation/__init__.py` with LangChainInstrumentor exports
+- [x] T044 [US1] Verify all User Story 1 tests pass (LangChain only - CrewAI pending)
 
 **Checkpoint**: User Story 1 complete - LangChain/CrewAI agents can be traced with one line of code
 

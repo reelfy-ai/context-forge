@@ -46,11 +46,8 @@ def _should_analyze(state: AdvisorState) -> Literal["analyze", "recommend"]:
     return "recommend"
 
 
-def _should_memorize(state: AdvisorState) -> Literal["memorize", "end"]:
-    """Decide whether to invoke the Memorizer subgraph."""
-    if state.get("should_memorize", False):
-        return "memorize"
-    return "end"
+# Note: _should_memorize is no longer used - memorizer always runs
+# and decides internally if there's anything worth remembering
 
 
 def _analyze_node(state: AdvisorState) -> dict:
@@ -96,47 +93,35 @@ def _get_available_tools() -> list:
 
 
 def _memorize_node(state: AdvisorState, *, store: BaseStore) -> dict:
-    """Invoke the Memorizer subgraph to extract facts and update profile.
+    """Invoke the Memorizer agent to analyze conversation and update memory.
 
-    Bridges AdvisorState → MemorizerState, runs the subgraph,
-    then persists the updated profile to the LangGraph Store.
+    The memorizer is a ReAct agent that:
+    1. Evaluates if there's anything worth remembering
+    2. Checks current profile (if needed)
+    3. Updates profile fields or adds observations (if warranted)
+
+    The memorizer decides internally what to store - it may return
+    without making any updates if nothing new was learned.
 
     Args:
         state: Current advisor state
         store: LangGraph Store for profile persistence (injected by runtime)
     """
-    from src.agents.memorizer import build_memorizer_graph
-    from src.core.state import MemorizerState
-    from src.memory.helpers import save_profile_to_store
+    from src.agents.memorizer import invoke_memorizer
 
-    config_module = __import__("src.config", fromlist=["get_config"])
-    config = config_module.get_config()
-
-    # Determine which turns to summarize (if > max_turns_before_summary)
-    max_turns = config.memorizer.max_turns_before_summary
     messages = state.get("messages", [])
-    turns_to_summarize = list(range(len(messages))) if len(messages) > max_turns else []
+    user_id = state.get("user_id", "unknown")
 
-    memorizer_state = MemorizerState(
+    # Invoke the ReAct memorizer - it decides what to remember
+    result = invoke_memorizer(
         messages=messages,
-        user_profile=state.get("user_profile"),
-        extracted_facts=[],
-        validated_facts=[],
-        summary=None,
-        turns_to_summarize=turns_to_summarize,
+        user_id=user_id,
+        store=store,
     )
 
-    graph = build_memorizer_graph()
-    result = graph.invoke(memorizer_state)
-
-    # Persist the updated profile to LangGraph Store
-    updated_profile = result.get("user_profile")
-    if updated_profile:
-        save_profile_to_store(store, updated_profile)
-
+    # Return memory operations for tracing
     return {
-        "extracted_facts": result.get("validated_facts", []),
-        "user_profile": updated_profile,
+        "memory_operations": result.get("memory_operations", []),
     }
 
 
@@ -146,10 +131,11 @@ def build_advisor_graph(
 ) -> StateGraph:
     """Build the Advisor orchestrator StateGraph.
 
-    Flow: Intake → Recall → [Analyzer?] → Recommend → [Memorizer?] → END
+    Flow: Intake → Recall → [Analyzer?] → Recommend → Memorize → END
 
-    The checkpointer automatically persists state between invocations,
-    eliminating the need for a manual _persist_session node.
+    The memorizer always runs but decides internally if there's anything
+    worth remembering. This is cost-efficient because the memorizer
+    evaluates importance and may return without making any updates.
 
     Args:
         checkpointer: LangGraph checkpointer for session state persistence.
@@ -173,7 +159,6 @@ def build_advisor_graph(
     graph.set_entry_point("intake")
 
     # Edges
-    # Note: No _persist_session node - checkpointer handles state persistence
     graph.add_edge("intake", "recall")
     graph.add_conditional_edges(
         "recall",
@@ -181,11 +166,8 @@ def build_advisor_graph(
         {"analyze": "analyze", "recommend": "recommend"},
     )
     graph.add_edge("analyze", "recommend")
-    graph.add_conditional_edges(
-        "recommend",
-        _should_memorize,
-        {"memorize": "memorize", "end": END},
-    )
+    # Memorizer always runs - it decides internally what to remember
+    graph.add_edge("recommend", "memorize")
     graph.add_edge("memorize", END)
 
     return graph.compile(checkpointer=checkpointer, store=store)

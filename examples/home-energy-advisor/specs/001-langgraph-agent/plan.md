@@ -250,7 +250,7 @@ User Message
 - Extract node: LLM analyzes conversation, outputs `ExtractedFact[]`
 - Apply node: Updates profile fields, refreshes `updated_at` timestamps
 - Summarize node: Compresses turns > 20 into ProfileNotes
-- MemoryHygieneGrader evaluates: if this agent doesn't run, timestamps go stale
+- HybridMemoryHygieneGrader evaluates: if this agent doesn't run, user-stated facts won't be saved (LLM judge detects missed facts)
 
 ### Configuration (YAML)
 

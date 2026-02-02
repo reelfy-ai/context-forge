@@ -24,7 +24,7 @@ class AdvisorState(TypedDict):
     tool_observations: list[dict]  # Tool results from Analyzer (extracted from create_agent output)
     response: Optional[str]
     extracted_facts: list[ExtractedFact]
-    should_memorize: bool
+    memory_operations: list[dict]  # Memory operations from Memorizer (tool calls made)
 
 
 class MemorizerState(TypedDict):

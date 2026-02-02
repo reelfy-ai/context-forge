@@ -127,7 +127,7 @@ These scenarios exist specifically to demonstrate trajectory evaluation capabili
 **Expected Output**: Recommendation based on commute schedule (APPEARS CORRECT)
 
 **Trajectory Evaluation**:
-- `MemoryHygieneGrader`: FAIL - memory field > 90 days stale, memorize node didn't refresh timestamp
+- `HybridMemoryHygieneGrader`: FAIL - LLM judge detects user stated "WFH" but memorize node didn't save it (missed fact)
 - Output evaluation: PASS
 
 **Demonstration Value**: Shows how trajectory evaluation catches what output evaluation misses. The memorize node should have extracted the "WFH" fact and updated the profile — but it didn't.
@@ -283,7 +283,7 @@ These scenarios exist specifically to demonstrate trajectory evaluation capabili
 
 The example succeeds when:
 
-1. **Stale Memory Scenario**: MemoryHygieneGrader correctly identifies 220-day-old work_schedule as stale
+1. **Stale Memory Scenario**: HybridMemoryHygieneGrader (via LLM judge) correctly detects that user mentioned new work schedule but memorizer didn't update profile
 2. **Retrieval Waste Scenario**: RetrievalRelevanceGrader correctly calculates usage_ratio and flags waste
 3. **Loop Scenario**: LoopGrader correctly detects repeated tool calls
 4. **Budget Scenario**: BudgetGrader correctly flags token overruns

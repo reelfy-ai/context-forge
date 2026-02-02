@@ -135,7 +135,7 @@ Fact extracted from conversation by the memorize node. When applied, the profile
 | `source_turn` | `int` | Yes | Turn number where fact was mentioned |
 | `source_text` | `str` | Yes | Exact text that contained the fact |
 
-**Behavior**: When an ExtractedFact is applied, the profile field is overwritten with `new_value` and the section's `updated_at` is set to now. This prevents staleness. The MemoryHygieneGrader catches failures when the memorize node **doesn't run** or **misses a fact** — leading to stale `updated_at` timestamps.
+**Behavior**: When an ExtractedFact is applied, the profile field is overwritten with `new_value` and the section's `updated_at` is set to now. This prevents staleness. The `HybridMemoryHygieneGrader` (via its LLM judge component) catches failures when the memorize node **doesn't run** or **misses a fact** — these are semantic issues that require understanding the conversation context.
 
 **Example**:
 ```json
@@ -467,7 +467,7 @@ This profile is intentionally configured for the stale memory demonstration:
 }
 ```
 
-**Key staleness indicator**: `household.updated_at` is "2025-06-15" — 220 days before the demo date (2026-01-21). This triggers the `MemoryHygieneGrader` failure.
+**Key staleness indicator**: `household.updated_at` is "2025-06-15" — 220 days before the demo date (2026-01-21). When the user mentions new info (e.g., "I work from home now") but the memorizer doesn't update this field, the `HybridMemoryHygieneGrader` (via LLM judge) detects the missed fact.
 
 ---
 
@@ -577,7 +577,7 @@ This profile is intentionally configured for the stale memory demonstration:
 
 | Failure | Grader | Trigger |
 |---------|--------|---------|
-| Stale profile field | MemoryHygieneGrader | Memorizer doesn't run → `updated_at` stays old |
+| Missed user fact | HybridMemoryHygieneGrader | Memorizer doesn't run → user-stated facts not saved (LLM judge detects) |
 | Tool loop | LoopGrader | Analyzer calls same tool+args > 3 times |
 | Retrieval waste | RetrievalRelevanceGrader | Recall retrieves docs not used by Recommend |
 | Budget overrun | BudgetGrader | Too many Analyzer iterations → tokens > budget |
@@ -606,7 +606,7 @@ This profile is intentionally configured for the stale memory demonstration:
 
 ## Memory Staleness Calculation
 
-For `MemoryHygieneGrader` integration:
+For `HybridMemoryHygieneGrader` integration (staleness context for LLM judge):
 
 ```python
 from datetime import datetime, timedelta

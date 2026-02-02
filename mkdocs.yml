@@ -1,0 +1,70 @@
+site_name: ContextForge
+site_description: Evaluation framework for context-aware, agentic AI systems
+site_url: https://reelfy.github.io/context-forge
+
+repo_name: reelfy/context-forge
+repo_url: https://github.com/reelfy/context-forge
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_root_heading: true
+            show_source: true
+            members_order: source
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Quickstart: quickstart.md
+      - Architecture: architecture.md
+  - User Guide:
+      - Writing Custom Graders: guides/custom-graders.md
+  - API Reference:
+      - Overview: api/index.md
+      - Core:
+          - Trace: api/core/trace.md
+          - Types: api/core/types.md
+      - Graders:
+          - Base: api/graders/base.md
+          - Memory Hygiene: api/graders/memory-hygiene.md
+          - LLM Judges: api/graders/judges.md
+      - Instrumentation:
+          - Tracer: api/instrumentation/tracer.md
+          - LangChain: api/instrumentation/langchain.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - toc:
+      permalink: true

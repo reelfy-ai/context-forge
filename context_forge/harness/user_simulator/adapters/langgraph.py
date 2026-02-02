@@ -16,13 +16,20 @@ class LangGraphAdapter:
 
     Example usage:
         from my_agent import build_my_graph, MyAgentState
+        from context_forge.instrumentation import LangChainInstrumentor
 
         graph = build_my_graph()
+
+        # With instrumentation for trace capture
+        instrumentor = LangChainInstrumentor()
+        instrumentor.instrument()
+
         adapter = LangGraphAdapter(
             graph=graph,
             state_class=MyAgentState,
             input_key="message",
             output_key="response",
+            callbacks=[instrumentor.get_callback_handler()],
         )
     """
 
@@ -37,6 +44,7 @@ class LangGraphAdapter:
         initial_state: dict[str, Any] | None = None,
         config: dict[str, Any] | None = None,
         state_builder: Optional[Callable[[BaseMessage, SimulationState], dict[str, Any]]] = None,
+        callbacks: list[Any] | None = None,
     ):
         """Initialize the LangGraph adapter.
 
@@ -50,6 +58,7 @@ class LangGraphAdapter:
             initial_state: Initial state values
             config: LangGraph config (thread_id, etc.)
             state_builder: Optional custom function to build input state
+            callbacks: List of callback handlers for instrumentation
         """
         self._graph = graph
         self._state_class = state_class
@@ -60,6 +69,7 @@ class LangGraphAdapter:
         self._initial_state = initial_state or {}
         self._config = config or {}
         self._state_builder = state_builder
+        self._callbacks = callbacks or []
         self._current_state: dict[str, Any] = {}
 
     @property
@@ -124,11 +134,18 @@ class LangGraphAdapter:
 
     async def _invoke_graph(self, input_state: dict) -> dict:
         """Invoke the graph, handling sync/async."""
+        # Build config with callbacks for instrumentation
+        invoke_config = dict(self._config)
+        if self._callbacks:
+            # Merge callbacks with existing config callbacks
+            existing_callbacks = invoke_config.get("callbacks", [])
+            invoke_config["callbacks"] = list(existing_callbacks) + list(self._callbacks)
+
         if hasattr(self._graph, "ainvoke"):
-            return await self._graph.ainvoke(input_state, config=self._config)
+            return await self._graph.ainvoke(input_state, config=invoke_config)
         else:
             return await asyncio.to_thread(
-                self._graph.invoke, input_state, config=self._config
+                self._graph.invoke, input_state, config=invoke_config
             )
 
     async def cleanup(self) -> None:
