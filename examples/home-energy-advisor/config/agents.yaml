@@ -1,0 +1,15 @@
+advisor:
+  model: llama3.2
+  temperature: 0.7
+
+analyzer:
+  model: llama3.2
+  temperature: 0.3
+  recursion_limit: 10  # Max LangGraph steps (agent->tool round-trips)
+
+memorizer:
+  model: llama3.2
+  temperature: 0.2
+  confidence_threshold: 0.7
+  turn_threshold: 10
+  max_turns_before_summary: 20

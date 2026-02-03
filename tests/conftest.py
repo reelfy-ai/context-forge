@@ -5,7 +5,7 @@ These fixtures provide reusable test data and utilities.
 """
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List
 
 # NOTE: These imports will work once the package is implemented
@@ -32,7 +32,7 @@ class MockTraceStep:
     def __init__(self, step_id, step_type, timestamp=None, data=None, actor=None):
         self.step_id = step_id
         self.step_type = step_type
-        self.timestamp = timestamp or datetime.utcnow()
+        self.timestamp = timestamp or datetime.now(timezone.utc)
         self.data = data or {}
         self.actor = actor
         self.timing = None
@@ -59,7 +59,7 @@ class MockTraceRun:
     def __init__(self, **kwargs):
         self.trace_version = kwargs.get("trace_version", "1.0.0")
         self.run_id = kwargs.get("run_id", "test-run-123")
-        self.started_at = kwargs.get("started_at", datetime.utcnow())
+        self.started_at = kwargs.get("started_at", datetime.now(timezone.utc))
         self.ended_at = kwargs.get("ended_at")
         self.steps: List[MockTraceStep] = kwargs.get("steps", [])
         self.budgets = kwargs.get("budgets", MockTraceBudgets())

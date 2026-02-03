@@ -142,3 +142,10 @@ Each feature starts with `spec.md` (user stories, requirements). Run `/speckit.p
 3. Run `/speckit.plan` to generate technical artifacts
 4. Run `/speckit.tasks` to break down into work items
 5. Run `/speckit.implement` to code
+
+## Active Technologies
+- Python 3.10+ (per constitution) (001-trace-capture)
+- JSON files (trace output), no persistent storage required for core (001-trace-capture)
+
+## Recent Changes
+- 001-trace-capture: Added Python 3.10+ (per constitution)

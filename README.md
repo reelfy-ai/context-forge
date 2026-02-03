@@ -39,15 +39,17 @@ ContextForge's graders are designed to evaluate each of these pillars — detect
 ### Graders
 **Graders** are the evaluation components that analyze traces and produce scores, pass/fail verdicts, and evidence. Each grader targets specific context engineering pillars:
 
-| Grader | Type | Pillars Evaluated |
-|--------|------|-------------------|
-| *BudgetGrader* | Deterministic | Agents, Tools — enforce token/tool/time limits |
-| *LoopGrader* | Deterministic | Agents — detect repeated actions or state cycles |
-| *SchemaGrader* | Deterministic | Tools, Prompting — validate tool args and output format |
-| *MemoryHygieneGrader* | Deterministic | Memory — detect stale or duplicate data resurfacing |
-| *RetrievalRelevanceGrader* | Deterministic | Retrieval — measure if retrieved chunks were actually used |
-| *ContextWindowGrader* | Deterministic | Retrieval, Memory — detect bloated or irrelevant context |
-| *TrajectoryJudge* | LLM-as-judge | All pillars — qualitative assessment of reasoning, planning, and context usage |
+| Grader | Type | Status | Pillars Evaluated |
+|--------|------|--------|-------------------|
+| *MemoryCorruptionGrader* | Deterministic | ✅ Available | Memory — detect data loss and corruption |
+| *MemoryHygieneJudge* | LLM-as-judge | ✅ Available | Memory — detect missed facts, hallucinations |
+| *HybridMemoryHygieneGrader* | Hybrid | ✅ Available | Memory — combines deterministic + LLM evaluation |
+| *BudgetGrader* | Deterministic | 🔜 Coming Soon | Agents, Tools — enforce token/tool/time limits |
+| *LoopGrader* | Deterministic | 🔜 Coming Soon | Agents — detect repeated actions or state cycles |
+| *SchemaGrader* | Deterministic | 🔜 Coming Soon | Tools, Prompting — validate tool args and output format |
+| *RetrievalRelevanceGrader* | Deterministic | 🔜 Coming Soon | Retrieval — measure if retrieved chunks were actually used |
+| *ContextWindowGrader* | Deterministic | 🔜 Coming Soon | Retrieval, Memory — detect bloated or irrelevant context |
+| *TrajectoryJudge* | LLM-as-judge | 🔜 Coming Soon | All pillars — qualitative assessment of reasoning and planning |
 
 **Deterministic graders** provide fast, reproducible checks with predictable outcomes.
 **LLM-as-judge graders** use a local LLM (Ollama-first) for qualitative evaluation that's harder to express as rules.
@@ -77,26 +79,43 @@ ContextForge exists to make those failures **observable, testable, and comparabl
 
 ---
 
-## Example: Catching a Loop
+## Example: Catching Memory Issues
 
-Your support agent handles refund requests. During testing, you notice it sometimes takes 30+ seconds to respond. Why?
+Your home energy advisor agent helps users optimize EV charging. A user mentions they now work from home, but the agent gives advice based on their old commute schedule. Why?
 
 ```
-# ContextForge evaluation output
+# ContextForge evaluation output (available now)
+
+HybridMemoryHygieneGrader: FAIL
+  Evidence:
+    [ERROR] missed_fact
+            User stated "I work from home now" but this was not saved to memory
+    [INFO]  llm_summary
+            Agent read stale work_schedule="Office 9-5" but user indicated WFH
+
+Result: [FAIL] FAILED
+Score:  0.00 / 1.00
+```
+
+Without trajectory evaluation, you'd only see "agent responded" — missing that it used stale context entirely.
+
+---
+
+## Example: Catching a Loop (Coming Soon)
+
+```
+# Planned ContextForge output (LoopGrader + BudgetGrader)
 
 LoopGrader: FAIL
   - Agent called `check_order_status` 6 times with identical arguments
   - Steps 4, 7, 12, 15, 19, 23 are duplicates
-  - Evidence: step_id=4 args={"order_id": "12345"}
 
 BudgetGrader: FAIL
   - Token usage: 8,432 (limit: 5,000)
   - Tool calls: 14 (limit: 10)
-
-Recommendation: Agent is stuck in a retry loop. Check tool error handling.
 ```
 
-Without trajectory evaluation, you'd only see "agent responded correctly" — missing the inefficiency entirely.
+These graders are on our roadmap and coming soon.
 
 ---
 
@@ -114,16 +133,17 @@ After running ContextForge on your agent, you'll be able to answer:
 
 ## What Makes ContextForge Different
 
-| Capability | ContextForge |
-|----------|--------------|
-| Output-only scoring | No |
-| Trajectory-based evaluation | Yes |
-| Context engineering evals | Yes |
-| Memory hygiene detection | Yes |
-| Tool orchestration evals | Yes |
-| Deterministic replay (CI) | Yes |
-| Local LLM judges (Ollama) | Yes |
-| Framework-agnostic graders | Yes |
+| Capability | Status |
+|----------|--------|
+| Trajectory-based evaluation | ✅ Available |
+| Memory hygiene detection | ✅ Available |
+| Local LLM judges (Ollama) | ✅ Available |
+| Framework-agnostic graders | ✅ Available |
+| LangGraph instrumentation | ✅ Available |
+| Tool orchestration evals | 🔜 Coming Soon |
+| Budget/Loop detection | 🔜 Coming Soon |
+| Deterministic replay (CI) | 🔜 Coming Soon |
+| YAML evaluation config | 🔜 Coming Soon |
 
 ---
 
@@ -148,11 +168,11 @@ If your system can emit events, ContextForge can evaluate it.
 
 ContextForge offers multiple ways to capture agent behavior, from zero-code to explicit control.
 
-### Level 1: Zero-Code (via OpenTelemetry)
-If you already use OpenInference or OpenTelemetry for LLM observability, ContextForge can ingest those traces directly.
+### Level 1: Zero-Code (via OpenTelemetry) — 🔜 Coming Soon
+If you already use OpenInference or OpenTelemetry for LLM observability, ContextForge will be able to ingest those traces directly.
 
 ```bash
-# Collect traces from existing OpenTelemetry pipeline
+# Planned: Collect traces from existing OpenTelemetry pipeline
 contextforge collect --otlp-port 4317 --eval evals.yaml
 ```
 
@@ -211,11 +231,12 @@ with Tracer.run(task="refund_request") as t:
 
 ---
 
-## Evaluation Configuration
+## Evaluation Configuration — 🔜 Coming Soon
 
-Users define **what to evaluate**, not how data is stored.
+Users will define **what to evaluate** declaratively in YAML.
 
 ```yaml
+# Planned configuration format
 suite: checkout_agent
 graders:
   - budget:
@@ -223,25 +244,24 @@ graders:
       max_tool_calls: 10
   - loops:
       max_repeats: 3
-  - tool_schema:
-      allowlist: ["search", "db_query", "email_send"]
-  - trajectory_judge:
+  - memory_hygiene:
       backend: ollama
-      model: llama3.1
-      rubric: rubrics/context_quality.md
+      model: llama3.2
 ```
+
+**Currently available**: Programmatic grader configuration via Python API.
 
 ---
 
-## CI and Regression Testing
+## CI and Regression Testing — 🔜 Coming Soon
 
-ContextForge supports:
+ContextForge will support:
 - tool call recording and replay
 - deterministic evaluation runs
 - regression diffs between versions
 - JUnit / Markdown / JSON reports
 
-This makes agent evaluation **part of normal software delivery**, not an afterthought.
+**Currently available**: JSON trace export for custom CI integration.
 
 ---
 
@@ -279,21 +299,29 @@ Domain packs extend ContextForge without bloating the core.
 
 ## Project Status
 
-🚧 **Early-stage, design-first**
+🚧 **Alpha (v0.1.0)** — Core instrumentation ready, advanced features in development
 
-The current focus is on:
-- stable trace specification
-- tracer and adapter APIs
-- deterministic graders
-- CI-safe replay
+### ✅ Available Now
+- **Trace capture**: LangGraph/LangChain instrumentation with memory operation tracking
+- **Memory graders**: MemoryCorruptionGrader (deterministic) + MemoryHygieneJudge (LLM-based)
+- **Ollama integration**: Local LLM judges with structured output
+- **Test harness**: User simulation for trajectory generation
+- **189 tests passing**: Solid foundation for production use
 
-APIs are evolving, but contracts are being designed deliberately.
+### 🔜 Coming Soon
+- Additional graders: Budget, Loop, Schema, Retrieval, ContextWindow
+- YAML evaluation configuration
+- CLI tools (`contextforge run`, `contextforge collect`)
+- CI/replay infrastructure
+- OpenTelemetry ingestion
+
+APIs are evolving, but trace contracts are stable.
 
 ---
 
 ## Getting Started
 
-**New to ContextForge?** See the **[QUICKSTART.md](QUICKSTART.md)** guide and check out the **[examples/](examples/)** directory.
+**New to ContextForge?** See the **[QUICKSTART.md](https://github.com/reelfy-ai/context-forge/blob/main/QUICKSTART.md)** guide and check out the **[examples/](https://github.com/reelfy-ai/context-forge/tree/main/examples)** directory.
 
 ---
 
@@ -305,19 +333,19 @@ ContextForge follows **Spec-Driven Development** with [GitHub Spec-Kit](https://
 
 | Feature | Priority | Description |
 |---------|----------|-------------|
-| [001-trace-capture](specs/001-trace-capture/spec.md) | P1 | Capture agent behavior (instrumentation, OTel, Tracer API) |
-| [002-deterministic-graders](specs/002-deterministic-graders/spec.md) | P1 | Rule-based evaluation (budget, loops, tool schema) |
-| [003-llm-judges](specs/003-llm-judges/spec.md) | P2 | LLM-based quality evaluation (Ollama-first) |
-| [004-eval-configuration](specs/004-eval-configuration/spec.md) | P2 | YAML config for evaluation suites |
-| [005-ci-replay](specs/005-ci-replay/spec.md) | P2 | Record/replay for deterministic CI |
-| [006-reports](specs/006-reports/spec.md) | P2 | JUnit XML, Markdown, JSON output formats |
-| [007-cli](specs/007-cli/spec.md) | P2 | Command-line interface (run, collect, validate) |
+| [001-trace-capture](https://github.com/reelfy-ai/context-forge/blob/main/specs/001-trace-capture/spec.md) | P1 | Capture agent behavior (instrumentation, OTel, Tracer API) |
+| [002-deterministic-graders](https://github.com/reelfy-ai/context-forge/blob/main/specs/002-deterministic-graders/spec.md) | P1 | Rule-based evaluation (budget, loops, tool schema) |
+| [003-llm-judges](https://github.com/reelfy-ai/context-forge/blob/main/specs/003-llm-judges/spec.md) | P2 | LLM-based quality evaluation (Ollama-first) |
+| [004-eval-configuration](https://github.com/reelfy-ai/context-forge/blob/main/specs/004-eval-configuration/spec.md) | P2 | YAML config for evaluation suites |
+| [005-ci-replay](https://github.com/reelfy-ai/context-forge/blob/main/specs/005-ci-replay/spec.md) | P2 | Record/replay for deterministic CI |
+| [006-reports](https://github.com/reelfy-ai/context-forge/blob/main/specs/006-reports/spec.md) | P2 | JUnit XML, Markdown, JSON output formats |
+| [007-cli](https://github.com/reelfy-ai/context-forge/blob/main/specs/007-cli/spec.md) | P2 | Command-line interface (run, collect, validate) |
 
 Each feature directory contains:
 - `spec.md` — User stories, requirements, success criteria
 - After `/speckit.plan`: `plan.md`, `research.md`, `data-model.md`, `contracts/`
 
-See [specs/README.md](specs/README.md) for the full spec process and directory structure.
+See [specs/README.md](https://github.com/reelfy-ai/context-forge/blob/main/specs/README.md) for the full spec process and directory structure.
 
 ---
 

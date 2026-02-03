@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "contextforge-eval"
+version = "0.1.2"
+description = "Evaluation framework for context-aware, agentic AI systems"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.10"
+authors = [
+    {name = "Reelfy", email = "garry@reelfy.ai"},
+]
+keywords = [
+    "evaluation",
+    "agents",
+    "llm",
+    "langchain",
+    "langgraph",
+    "testing",
+    "trajectory",
+    "context-engineering",
+    "memory",
+    "graders",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "pydantic>=2.0.0",
+    "langchain-core>=1.0.0",
+    "httpx>=0.27.0",
+    "ollama>=0.6.0",
+]
+
+[project.optional-dependencies]
+langgraph = [
+    "langgraph>=1.0.0",
+]
+crewai = [
+    "crewai>=0.80.0",
+]
+pydanticai = [
+    "pydantic-ai>=0.0.30",
+]
+all = [
+    "contextforge-eval[langgraph,crewai,pydanticai]",
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.4.0",
+    "build>=1.0.0",
+]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/reelfy-ai/context-forge"
+Documentation = "https://github.com/reelfy-ai/context-forge#readme"
+Repository = "https://github.com/reelfy-ai/context-forge"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["context_forge*"]
+
+[tool.setuptools.package-data]
+context_forge = ["py.typed"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]

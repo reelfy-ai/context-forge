@@ -13,16 +13,29 @@ ContextForge evaluates **agent trajectories** — the full sequence of steps an 
 ## Installation
 
 ```bash
+# Install from PyPI
+pip install contextforge-eval
+
+# With framework-specific extras
+pip install contextforge-eval[langgraph]   # LangGraph support
+pip install contextforge-eval[crewai]      # CrewAI support
+pip install contextforge-eval[pydanticai]  # PydanticAI support
+pip install contextforge-eval[all]         # All framework integrations
+```
+
+### For Contributors
+
+```bash
 # Clone the repository
-git clone https://github.com/reelfy/context-forge.git
+git clone https://github.com/reelfy-ai/context-forge.git
 cd context-forge
 
 # Create and activate virtual environment
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install (when package is available)
-pip install -e .
+# Install in development mode
+pip install -e ".[dev]"
 ```
 
 ## Choose Your Integration Level
@@ -38,16 +51,16 @@ ContextForge provides **4 integration levels**. Pick the one that fits your setu
 
 ---
 
-## Level 1: Zero-Code (OTel Ingestion)
+## Level 1: Zero-Code (OTel Ingestion) — 🔜 Coming Soon
 
 If you already have OpenTelemetry/OpenInference instrumentation:
 
 ```bash
-# Collect traces from existing OpenTelemetry pipeline
+# Planned: Collect traces from existing OpenTelemetry pipeline
 contextforge collect --otlp-port 4317 --eval evals.yaml
 ```
 
-No code changes required. ContextForge ingests your existing traces and evaluates them.
+This feature is on our roadmap. Currently, use Level 2-4 for trace capture.
 
 ---
 
@@ -151,62 +164,125 @@ with Tracer.run(task="weather_check") as t:
 Once you have traces (from any integration level), evaluate them with graders:
 
 ```python
-from context_forge.graders import BudgetGrader
+from context_forge.graders import HybridMemoryHygieneGrader
+from context_forge.graders.judges.backends import OllamaBackend
 
-# Create a grader with limits
-grader = BudgetGrader(config={
-    "max_tokens": 5000,
-    "max_tool_calls": 10
-})
+# Create a grader (combines deterministic + LLM evaluation)
+grader = HybridMemoryHygieneGrader(
+    llm_backend=OllamaBackend(model="llama3.2")
+)
 
 # Run the grader
-result = grader(trace)
+result = grader.grade(trace)
 
 print(f"Passed: {result.passed}")
 print(f"Score: {result.score}")
 
-# View evidence if it failed
+# Print formatted report
+result.print_report()
+
+# Or access evidence programmatically
 if not result.passed:
-    for evidence in result.evidence:
-        print(f"  - {evidence.description}")
+    for evidence in result.errors:
+        print(f"  - [{evidence.check_name}] {evidence.description}")
 ```
 
-## Configure Evaluation Suites
+## Evaluation Levels
 
-Define your evaluation in YAML (works with all integration levels):
+ContextForge provides two evaluation approaches, depending on your needs:
+
+### Level 2: Simple Evaluation (Recommended Start)
+
+For quick, single-turn evaluation with minimal setup:
+
+```python
+from context_forge.evaluation import evaluate_agent
+from langgraph.store.memory import InMemoryStore
+
+# Set up your agent
+store = InMemoryStore()
+# ... populate store with user profile ...
+graph = build_my_graph(store=store)
+
+# Evaluate with one function call
+result = evaluate_agent(
+    graph=graph,
+    message="I work from home now. When should I charge my EV?",
+    store=store,
+    user_id="user_123",
+)
+
+# Check results
+if not result.passed:
+    for error in result.errors:
+        print(f"Issue: {error.description}")
+```
+
+### Level 3: Multi-Turn Simulation
+
+For comprehensive testing with personas and scenarios:
+
+```python
+from context_forge import SimulationRunner, LangGraphAdapter
+from context_forge.harness.user_simulator import GenerativeScenario, Persona
+
+# Define a user persona
+persona = Persona(
+    name="Sarah",
+    background="Homeowner with 7.5kW solar and Tesla Model 3",
+    goals=["Get EV charging recommendation"],
+)
+
+# Create a multi-turn scenario
+scenario = GenerativeScenario(
+    persona=persona,
+    initial_message="When should I charge my EV tonight?",
+    max_turns=5,
+)
+
+# Set up adapter and runner
+adapter = LangGraphAdapter(graph=graph, ...)
+runner = SimulationRunner(adapter=adapter)
+
+# Run simulation
+result = await runner.run(scenario)
+```
+
+**When to use which:**
+- **Level 2**: Quick testing, CI pipelines, simple scenarios
+- **Level 3**: Systematic testing, multiple user types, complex conversations
+
+---
+
+## Configure Evaluation Suites — 🔜 Coming Soon
+
+YAML configuration for evaluation suites is on our roadmap:
 
 ```yaml
-# evals.yaml
+# Planned: evals.yaml
 suite:
   name: my_agent_evals
 
 graders:
+  - name: memory_hygiene
+    config:
+      llm_backend: ollama
+      model: llama3.2
+
   - name: budget
     config:
       max_tokens: 5000
       max_tool_calls: 10
-
-  - name: loops
-    config:
-      max_repeats: 3
-
-reporters:
-  - type: junit
-    output: results.xml
 ```
 
-Run with the CLI:
+**Currently available**: Programmatic configuration via Python API (see above).
 
-```bash
-contextforge run --config evals.yaml --trace my_trace.jsonl
-```
+## CI Integration: Deterministic Tests — 🔜 Coming Soon
 
-## CI Integration: Deterministic Tests
-
-For CI, use scenarios with fixtures:
+Tool recording and replay for CI is on our roadmap:
 
 ```yaml
-# scenarios/test_case.yaml
+# Planned: scenarios/test_case.yaml
 id: happy_path
 task_id: refund_request
 
@@ -219,24 +295,21 @@ tool_fixtures:
     result: {status: "delivered", amount: 99.99}
 ```
 
-Run in replay mode:
-
-```bash
-contextforge run --scenario scenarios/test_case.yaml --replay
-```
+**Currently available**: Export traces as JSON for custom CI integration.
 
 ## Available Graders
 
-| Grader | Purpose | Deterministic |
-|--------|---------|---------------|
-| `budget` | Token/tool/time limits | ✓ |
-| `loops` | Detect repetition | ✓ |
-| `schema` | Validate tool usage | ✓ |
-| `context_window` | Detect bloated context | ✓ |
-| `memory_hygiene` | Detect stale memory | ✓ |
-| `tool_correctness` | Verify tool args | ✓ |
-| `conflict` | Find contradictions | ✓ |
-| `trajectory_judge` | LLM evaluation | ✗ |
+| Grader | Purpose | Type | Status |
+|--------|---------|------|--------|
+| `MemoryCorruptionGrader` | Detect data loss/corruption | Deterministic | ✅ Available |
+| `MemoryHygieneJudge` | Detect missed facts, hallucinations | LLM Judge | ✅ Available |
+| `HybridMemoryHygieneGrader` | Combined memory evaluation | Hybrid | ✅ Available |
+| `BudgetGrader` | Token/tool/time limits | Deterministic | 🔜 Coming Soon |
+| `LoopGrader` | Detect repetition | Deterministic | 🔜 Coming Soon |
+| `SchemaGrader` | Validate tool usage | Deterministic | 🔜 Coming Soon |
+| `RetrievalRelevanceGrader` | Measure retrieval usage | Deterministic | 🔜 Coming Soon |
+| `ContextWindowGrader` | Detect bloated context | Deterministic | 🔜 Coming Soon |
+| `TrajectoryJudge` | General LLM evaluation | LLM Judge | 🔜 Coming Soon |
 
 ## Project Structure
 
@@ -305,7 +378,7 @@ class MyGrader(Grader):
 
 ## Getting Help
 
-- [GitHub Issues](https://github.com/reelfy/context-forge/issues)
+- [GitHub Issues](https://github.com/reelfy-ai/context-forge/issues)
 - [Specifications](specs/README.md)
 - [Architecture](ARCHITECTURE.md)
 

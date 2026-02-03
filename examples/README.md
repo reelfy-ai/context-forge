@@ -45,11 +45,12 @@ python examples/graders/budget_grader.py
 ## Prerequisites
 
 ```bash
-# Activate virtual environment
-source .venv/bin/activate
+# Install ContextForge from PyPI
+pip install contextforge-eval
 
-# Install dependencies (when available)
-pip install -e .
+# Or for local development
+source .venv/bin/activate
+pip install -e ".[dev]"
 ```
 
 ## Example Output
