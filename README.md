@@ -321,7 +321,7 @@ APIs are evolving, but trace contracts are stable.
 
 ## Getting Started
 
-**New to ContextForge?** See the **[QUICKSTART.md](QUICKSTART.md)** guide and check out the **[examples/](examples/)** directory.
+**New to ContextForge?** See the **[QUICKSTART.md](https://github.com/reelfy-ai/context-forge/blob/main/QUICKSTART.md)** guide and check out the **[examples/](https://github.com/reelfy-ai/context-forge/tree/main/examples)** directory.
 
 ---
 
@@ -333,19 +333,19 @@ ContextForge follows **Spec-Driven Development** with [GitHub Spec-Kit](https://
 
 | Feature | Priority | Description |
 |---------|----------|-------------|
-| [001-trace-capture](specs/001-trace-capture/spec.md) | P1 | Capture agent behavior (instrumentation, OTel, Tracer API) |
-| [002-deterministic-graders](specs/002-deterministic-graders/spec.md) | P1 | Rule-based evaluation (budget, loops, tool schema) |
-| [003-llm-judges](specs/003-llm-judges/spec.md) | P2 | LLM-based quality evaluation (Ollama-first) |
-| [004-eval-configuration](specs/004-eval-configuration/spec.md) | P2 | YAML config for evaluation suites |
-| [005-ci-replay](specs/005-ci-replay/spec.md) | P2 | Record/replay for deterministic CI |
-| [006-reports](specs/006-reports/spec.md) | P2 | JUnit XML, Markdown, JSON output formats |
-| [007-cli](specs/007-cli/spec.md) | P2 | Command-line interface (run, collect, validate) |
+| [001-trace-capture](https://github.com/reelfy-ai/context-forge/blob/main/specs/001-trace-capture/spec.md) | P1 | Capture agent behavior (instrumentation, OTel, Tracer API) |
+| [002-deterministic-graders](https://github.com/reelfy-ai/context-forge/blob/main/specs/002-deterministic-graders/spec.md) | P1 | Rule-based evaluation (budget, loops, tool schema) |
+| [003-llm-judges](https://github.com/reelfy-ai/context-forge/blob/main/specs/003-llm-judges/spec.md) | P2 | LLM-based quality evaluation (Ollama-first) |
+| [004-eval-configuration](https://github.com/reelfy-ai/context-forge/blob/main/specs/004-eval-configuration/spec.md) | P2 | YAML config for evaluation suites |
+| [005-ci-replay](https://github.com/reelfy-ai/context-forge/blob/main/specs/005-ci-replay/spec.md) | P2 | Record/replay for deterministic CI |
+| [006-reports](https://github.com/reelfy-ai/context-forge/blob/main/specs/006-reports/spec.md) | P2 | JUnit XML, Markdown, JSON output formats |
+| [007-cli](https://github.com/reelfy-ai/context-forge/blob/main/specs/007-cli/spec.md) | P2 | Command-line interface (run, collect, validate) |
 
 Each feature directory contains:
 - `spec.md` — User stories, requirements, success criteria
 - After `/speckit.plan`: `plan.md`, `research.md`, `data-model.md`, `contracts/`
 
-See [specs/README.md](specs/README.md) for the full spec process and directory structure.
+See [specs/README.md](https://github.com/reelfy-ai/context-forge/blob/main/specs/README.md) for the full spec process and directory structure.
 
 ---
 
