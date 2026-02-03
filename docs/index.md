@@ -37,12 +37,12 @@ result.print_report()
 ## Installation
 
 ```bash
-pip install context-forge
+pip install contextforge-eval
 
 # With framework-specific extras
-pip install context-forge[langgraph]
-pip install context-forge[crewai]
-pip install context-forge[all]
+pip install contextforge-eval[langgraph]
+pip install contextforge-eval[crewai]
+pip install contextforge-eval[all]
 ```
 
 ## Next Steps

@@ -2,6 +2,13 @@
 
 __version__ = "0.1.0"
 
+# Simple evaluation API (Level 2)
+from context_forge.evaluation import (
+    EvaluationResult,
+    evaluate_agent,
+    evaluate_trace,
+)
+
 # Core trace types
 from context_forge.core import (
     AgentInfo,
@@ -47,6 +54,10 @@ from context_forge.harness.user_simulator import (
 
 __all__ = [
     "__version__",
+    # Simple evaluation API (Level 2)
+    "evaluate_agent",
+    "evaluate_trace",
+    "EvaluationResult",
     # Core trace types
     "StepType",
     "AgentInfo",

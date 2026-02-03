@@ -5,12 +5,12 @@ Get started with ContextForge trace capture in 5 minutes.
 ## Installation
 
 ```bash
-pip install context-forge
+pip install contextforge-eval
 
 # Optional: Framework-specific extras
-pip install context-forge[langchain]  # LangChain support
-pip install context-forge[crewai]     # CrewAI support
-pip install context-forge[otel]       # OpenTelemetry support
+pip install contextforge-eval[langgraph]  # LangGraph support
+pip install contextforge-eval[crewai]     # CrewAI support
+pip install contextforge-eval[pydanticai] # PydanticAI support
 ```
 
 ## Choose Your Integration Level
@@ -206,6 +206,6 @@ Token counts depend on LLM provider support. Some providers don't return token u
 
 Install the appropriate extra:
 ```bash
-pip install context-forge[langchain]  # For LangChain
-pip install context-forge[crewai]     # For CrewAI
+pip install contextforge-eval[langgraph]  # For LangGraph
+pip install contextforge-eval[crewai]     # For CrewAI
 ```

@@ -3,16 +3,30 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "context-forge"
+name = "contextforge-eval"
 version = "0.1.0"
 description = "Evaluation framework for context-aware, agentic AI systems"
 readme = "README.md"
-license = {text = "MIT"}
+license = "Apache-2.0"
 requires-python = ">=3.10"
+authors = [
+    {name = "Reelfy", email = "garry@reelfy.ai"},
+]
+keywords = [
+    "evaluation",
+    "agents",
+    "llm",
+    "langchain",
+    "langgraph",
+    "testing",
+    "trajectory",
+    "context-engineering",
+    "memory",
+    "graders",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -38,7 +52,7 @@ pydanticai = [
     "pydantic-ai>=0.0.30",
 ]
 all = [
-    "context-forge[langgraph,crewai,pydanticai]",
+    "contextforge-eval[langgraph,crewai,pydanticai]",
 ]
 dev = [
     "pytest>=8.0.0",
@@ -53,9 +67,9 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/reelfy/context-forge"
-Documentation = "https://reelfy.github.io/context-forge"
-Repository = "https://github.com/reelfy/context-forge"
+Homepage = "https://github.com/reelfy-ai/context-forge"
+Documentation = "https://reelfy-ai.github.io/context-forge"
+Repository = "https://github.com/reelfy-ai/context-forge"
 
 [tool.setuptools.packages.find]
 where = ["."]

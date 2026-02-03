@@ -28,7 +28,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "context-forge[langgraph]",
+    "contextforge-eval[langgraph]",
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
     "ruff>=0.4.0",

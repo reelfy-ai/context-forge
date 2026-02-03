@@ -27,7 +27,7 @@ curl http://localhost:11434/api/tags
 
 ```bash
 # Clone the repository
-git clone https://github.com/reelfy/context-forge
+git clone https://github.com/reelfy-ai/context-forge
 cd context-forge/examples/home-energy-advisor
 
 # Create virtual environment

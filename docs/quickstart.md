@@ -13,16 +13,29 @@ ContextForge evaluates **agent trajectories** — the full sequence of steps an 
 ## Installation
 
 ```bash
+# Install from PyPI
+pip install contextforge-eval
+
+# With framework-specific extras
+pip install contextforge-eval[langgraph]   # LangGraph support
+pip install contextforge-eval[crewai]      # CrewAI support
+pip install contextforge-eval[pydanticai]  # PydanticAI support
+pip install contextforge-eval[all]         # All framework integrations
+```
+
+### For Contributors
+
+```bash
 # Clone the repository
-git clone https://github.com/reelfy/context-forge.git
+git clone https://github.com/reelfy-ai/context-forge.git
 cd context-forge
 
 # Create and activate virtual environment
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install (when package is available)
-pip install -e .
+# Install in development mode
+pip install -e ".[dev]"
 ```
 
 ## Choose Your Integration Level
@@ -305,7 +318,7 @@ class MyGrader(Grader):
 
 ## Getting Help
 
-- [GitHub Issues](https://github.com/reelfy/context-forge/issues)
+- [GitHub Issues](https://github.com/reelfy-ai/context-forge/issues)
 - [Specifications](specs/README.md)
 - [Architecture](ARCHITECTURE.md)
 

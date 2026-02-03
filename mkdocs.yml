@@ -1,9 +1,9 @@
 site_name: ContextForge
 site_description: Evaluation framework for context-aware, agentic AI systems
-site_url: https://reelfy.github.io/context-forge
+site_url: https://reelfy-ai.github.io/context-forge
 
-repo_name: reelfy/context-forge
-repo_url: https://github.com/reelfy/context-forge
+repo_name: reelfy-ai/context-forge
+repo_url: https://github.com/reelfy-ai/context-forge
 
 theme:
   name: material
