@@ -1,6 +1,6 @@
 """ContextForge: Evaluation framework for context-aware, agentic AI systems."""
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 # Simple evaluation API (Level 2)
 from context_forge.evaluation import (
